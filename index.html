@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kolekcja kart</title>
+<title>Card Collection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Marcellus&display=swap" rel="stylesheet">
@@ -204,27 +204,27 @@ h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2rem, 5vw, 
 </head>
 <body>
 <div class="wrap">
-  <h1>Kolekcja kart</h1>
+  <h1>Card Collection</h1>
   <label class="search">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="Wpisz nick gracza" autocomplete="off" spellcheck="false" aria-label="Szukaj gracza po nicku">
+    <input id="q" type="search" placeholder="Enter player name" autocomplete="off" spellcheck="false" aria-label="Search player by name">
   </label>
   <main id="main"></main>
 </div>
 
-<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Podgląd karty" hidden>
-  <button class="close" id="vclose" aria-label="Zamknij podgląd">✕</button>
-  <button class="nav" id="vprev" aria-label="Poprzednia karta">‹</button>
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Card preview" hidden>
+  <button class="close" id="vclose" aria-label="Close preview">✕</button>
+  <button class="nav" id="vprev" aria-label="Previous card">‹</button>
   <div class="stage" id="stage">
     <div class="v-rar" id="vrar"></div>
     <div class="scene"><div class="v-card" id="vcard"></div></div>
     <div class="v-name" id="vname"></div>
     <div class="v-meta" id="vmeta"></div>
   </div>
-  <button class="nav" id="vnext" aria-label="Następna karta">›</button>
+  <button class="nav" id="vnext" aria-label="Next card">›</button>
 </div>
 
-<script id="data" type="application/json">{"users": {"Finalny_Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 31, "t": "2026-10-02 17:22:17"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 7, "t": "2026-10-02 17:22:17"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 70, "t": "2026-10-02 17:22:17"}], "Gabka_ja": [{"n": "Lodowy Golem", "r": "Epic", "c": 2, "t": "2026-10-03 16:30:30"}, {"n": "Ognisty Smok", "r": "Legendary", "c": 4, "t": "2026-10-03 16:31:00"}, {"n": "Rycerz Cienia", "r": "Common", "c": 7, "t": "2026-10-03 16:29:29"}, {"n": "Wichrowy Elf", "r": "Rare", "c": 5, "t": "2026-10-03 16:47:56"}], "Janusz_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 13, "t": "2026-10-02 18:56:12"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 18:53:42"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 18:53:27"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 38, "t": "2026-10-02 18:56:12"}], "Nowy_Gracz_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 14:08:21"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 13:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 19, "t": "2026-10-02 14:08:21"}], "Ripify68": [{"n": "Lodowy Golem", "r": "Epic", "c": 16, "t": "2026-10-03 16:48:14"}, {"n": "Ognisty Smok", "r": "Legendary", "c": 8, "t": "2026-10-03 16:48:14"}, {"n": "Rycerz Cienia", "r": "Common", "c": 10, "t": "2026-10-03 16:48:14"}, {"n": "Wichrowy Elf", "r": "Rare", "c": 10, "t": "2026-10-03 16:48:14"}], "Streamerka_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 5, "t": "2026-10-02 13:00:56"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 12:33:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 13:00:56"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 22, "t": "2026-10-02 13:01:42"}], "Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 8, "t": "2026-10-02 13:00:10"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:59:26"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:55:48"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 17, "t": "2026-10-02 13:00:10"}], "Test_Gaba_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 18:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 8, "t": "2026-10-02 18:59:06"}], "Test_Lokalny": [{"n": "Elfi Łucznik", "r": "Rare", "c": 6, "t": "2026-10-02 12:51:31"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 4, "t": "2026-10-02 12:53:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:51:31"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 13, "t": "2026-10-02 12:53:03"}], "Test_Zabezpieczony": [{"n": "Elfi Łucznik", "r": "Rare", "c": 1, "t": "2026-10-02 17:26:29"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 17:26:44"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 10, "t": "2026-10-02 17:26:44"}], "Tester_Janusz": [{"n": "Elfi Łucznik", "r": "Rare", "c": 2, "t": "2026-10-02 12:26:02"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:26:02"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 6, "t": "2026-10-02 12:26:02"}]}, "images": {}}</script>
+<script id="data" type="application/json">{"users": {"Finalny_Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 31, "t": "2026-10-02 17:22:17"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 7, "t": "2026-10-02 17:22:17"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 70, "t": "2026-10-02 17:22:17"}], "Gabka_ja": [{"n": "Lodowy Golem", "r": "Epic", "c": 2, "t": "2026-10-03 16:30:30"}, {"n": "Ognisty Smok", "r": "Legendary", "c": 5, "t": "2026-10-03 17:52:28"}, {"n": "Rycerz Cienia", "r": "Common", "c": 7, "t": "2026-10-03 16:29:29"}, {"n": "Wichrowy Elf", "r": "Rare", "c": 5, "t": "2026-10-03 16:47:56"}], "Janusz_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 13, "t": "2026-10-02 18:56:12"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 18:53:42"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 18:53:27"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 38, "t": "2026-10-02 18:56:12"}], "Nowy_Gracz_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 14:08:21"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 13:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 19, "t": "2026-10-02 14:08:21"}], "Ripify68": [{"n": "Lodowy Golem", "r": "Epic", "c": 16, "t": "2026-10-03 16:48:14"}, {"n": "Ognisty Smok", "r": "Legendary", "c": 8, "t": "2026-10-03 16:48:14"}, {"n": "Rycerz Cienia", "r": "Common", "c": 10, "t": "2026-10-03 16:48:14"}, {"n": "Wichrowy Elf", "r": "Rare", "c": 10, "t": "2026-10-03 16:48:14"}], "Streamerka_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 5, "t": "2026-10-02 13:00:56"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 12:33:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 13:00:56"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 22, "t": "2026-10-02 13:01:42"}], "Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 8, "t": "2026-10-02 13:00:10"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:59:26"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:55:48"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 17, "t": "2026-10-02 13:00:10"}], "Test_Gaba_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 18:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 8, "t": "2026-10-02 18:59:06"}], "Test_Lokalny": [{"n": "Elfi Łucznik", "r": "Rare", "c": 6, "t": "2026-10-02 12:51:31"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 4, "t": "2026-10-02 12:53:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:51:31"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 13, "t": "2026-10-02 12:53:03"}], "Test_Zabezpieczony": [{"n": "Elfi Łucznik", "r": "Rare", "c": 1, "t": "2026-10-02 17:26:29"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 17:26:44"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 10, "t": "2026-10-02 17:26:44"}], "Tester_Janusz": [{"n": "Elfi Łucznik", "r": "Rare", "c": 2, "t": "2026-10-02 12:26:02"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:26:02"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 6, "t": "2026-10-02 12:26:02"}]}, "images": {}}</script>
 <script>
 const DATA = JSON.parse(document.getElementById('data').textContent);
 const ORDER = ['Legendary', 'Epic', 'Rare', 'Common'];
@@ -232,19 +232,19 @@ const RANK = Object.fromEntries(ORDER.map((r, i) => [r, i]));
 const rank = r => (r in RANK ? RANK[r] : 99);
 
 const SORTS = {
-  rarity_desc: ['Rzadkość: od najrzadszych', (a, b) => rank(a.r) - rank(b.r) || b.c - a.c || a.n.localeCompare(b.n, 'pl')],
-  rarity_asc:  ['Rzadkość: od najpospolitszych', (a, b) => rank(b.r) - rank(a.r) || b.c - a.c || a.n.localeCompare(b.n, 'pl')],
-  count_desc:  ['Kopie: najwięcej', (a, b) => b.c - a.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n, 'pl')],
-  count_asc:   ['Kopie: najmniej', (a, b) => a.c - b.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n, 'pl')],
-  recent:      ['Ostatnio zdobyte', (a, b) => (b.t || '').localeCompare(a.t || '') || rank(a.r) - rank(b.r)],
-  name:        ['Nazwa A–Z', (a, b) => a.n.localeCompare(b.n, 'pl')]
+  rarity_desc: ['Rarity: rarest first', (a, b) => rank(a.r) - rank(b.r) || b.c - a.c || a.n.localeCompare(b.n)],
+  rarity_asc:  ['Rarity: most common first', (a, b) => rank(b.r) - rank(a.r) || b.c - a.c || a.n.localeCompare(b.n)],
+  count_desc:  ['Copies: most', (a, b) => b.c - a.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n)],
+  count_asc:   ['Copies: fewest', (a, b) => a.c - b.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n)],
+  recent:      ['Recently obtained', (a, b) => (b.t || '').localeCompare(a.t || '') || rank(a.r) - rank(b.r)],
+  name:        ['Name A–Z', (a, b) => a.n.localeCompare(b.n)]
 };
 
 const players = Object.entries(DATA.users).map(([name, cards]) => {
   const by = {};
   cards.forEach(c => { by[c.r] = (by[c.r] || 0) + c.c; });
   return { name, cards, by, total: cards.reduce((s, c) => s + c.c, 0) };
-}).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pl'));
+}).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
 
 const state = { user: null, filter: 'all', sort: 'rarity_desc', view: [] };
 const $ = id => document.getElementById(id);
@@ -261,8 +261,8 @@ function h(tag, props = {}, ...kids) {
   kids.flat().forEach(k => { if (k != null) e.append(k); });
   return e;
 }
-const plural = n => n === 1 ? 'kopia' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'kopie' : 'kopii';
-const cardWord = n => n === 1 ? 'karta' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'karty' : 'kart';
+const plural = n => n === 1 ? 'copy' : 'copies';
+const cardWord = n => n === 1 ? 'card' : 'cards';
 
 function makeCard(c) {
   const art = h('div', { class: 'art' });
@@ -283,7 +283,7 @@ function showList() {
   const found = players.filter(p => p.name.toLowerCase().includes(term));
   main.replaceChildren();
   if (!found.length) {
-    main.append(h('p', { class: 'empty', text: `Nie ma gracza „${q.value.trim()}”. Sprawdź pisownię nicku.` }));
+    main.append(h('p', { class: 'empty', text: `No player named “${q.value.trim()}”. Check the spelling.` }));
     return;
   }
   main.append(h('div', { class: 'players' }, found.map(p =>
@@ -306,18 +306,18 @@ function openUser(name) {
 function showCollection() {
   const p = state.user;
   const unique = p.cards.length;
-  const chips = [['all', 'Wszystkie', p.total]].concat(ORDER.filter(r => p.by[r]).map(r => [r, r, p.by[r]]));
+  const chips = [['all', 'All', p.total]].concat(ORDER.filter(r => p.by[r]).map(r => [r, r, p.by[r]]));
   main.replaceChildren(
-    h('button', { class: 'back', type: 'button', onclick: () => { q.value = ''; history.replaceState(null, '', location.pathname); showList(); q.focus(); } }, '← Wszyscy gracze'),
+    h('button', { class: 'back', type: 'button', onclick: () => { q.value = ''; history.replaceState(null, '', location.pathname); showList(); q.focus(); } }, '← All players'),
     h('div', { class: 'who' },
       h('h2', { text: p.name }),
-      h('p', { text: `${p.total} ${cardWord(p.total)}, w tym ${unique} unikalnych` })),
+      h('p', { text: `${p.total} ${cardWord(p.total)}, ${unique} unique` })),
     h('div', { class: 'toolbar' },
-      h('div', { class: 'chips', role: 'group', 'aria-label': 'Filtr rzadkości' }, chips.map(([key, label, n]) =>
+      h('div', { class: 'chips', role: 'group', 'aria-label': 'Rarity filter' }, chips.map(([key, label, n]) =>
         h('button', { class: 'chip' + (key === 'all' ? '' : ' r-' + key), type: 'button', 'aria-pressed': String(state.filter === key),
             onclick: () => { state.filter = key; showCollection(); } },
           key === 'all' ? null : h('i'), label, h('b', { text: String(n) })))),
-      h('label', { class: 'sort' }, 'Sortuj',
+      h('label', { class: 'sort' }, 'Sort by',
         h('select', { onchange: e => { state.sort = e.target.value; renderGrid(); } },
           Object.entries(SORTS).map(([k, [label]]) => h('option', { value: k, text: label, ...(state.sort === k ? { selected: '' } : {}) }))))),
     h('div', { class: 'grid', id: 'grid' })
@@ -334,7 +334,7 @@ function renderGrid() {
       h('span', { class: 'rar', text: c.r }),
       h('div', { class: 'cardbox' }, makeCard(c), c.c > 1 ? h('span', { class: 'count', text: '×' + c.c }) : null),
       h('span', { class: 'nm', text: c.n }))));
-  if (!state.view.length) grid.append(h('p', { class: 'empty', text: 'Brak kart w tej kategorii.' }));
+  if (!state.view.length) grid.append(h('p', { class: 'empty', text: 'No cards in this category.' }));
 }
 
 /* ---------- viewer (3D tilt) ---------- */
@@ -348,7 +348,7 @@ function showViewerCard() {
   $('vrar').replaceChildren(h('i'), c.r);
   vcard.replaceChildren(makeCard(c));
   $('vname').textContent = c.n;
-  $('vmeta').textContent = `${c.c} ${plural(c.c)} · ostatnio zdobyta ${(c.t || '').slice(0, 10)}`;
+  $('vmeta').textContent = `${c.c} ${plural(c.c)} · last obtained ${(c.t || '').slice(0, 10)}`;
   $('vprev').disabled = vi === 0;
   $('vnext').disabled = vi === state.view.length - 1;
   setTilt(0, 0);
@@ -376,7 +376,7 @@ function setTilt(rx, ry, gx = 50, gy = 25) {
   vcard.style.setProperty('--gx', gx.toFixed(1) + '%');
   vcard.style.setProperty('--gy', gy.toFixed(1) + '%');
 }
-/* miękki limit obrotu: karta idzie za myszką, ale nigdy nie obróci się do końca */
+/* soft rotation limit: the card follows the pointer but never flips all the way */
 const soft = (d, max = 38) => max * Math.tanh(d / 170);
 
 stage.addEventListener('pointerdown', e => {
