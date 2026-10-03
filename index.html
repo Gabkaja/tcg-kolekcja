@@ -1,24 +1,426 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kolekcja Kart Streamu</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #fff; padding: 20px; margin: 0; }
-        h1 { text-align: center; color: #ffca28; margin-bottom: 30px; }
-        .user-block { background: #1e1e1e; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .user-name { font-size: 1.4rem; color: #4fc3f7; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 12px; }
-        .card-list { display: flex; flex-wrap: wrap; gap: 10px; }
-        .card-item { background: #2a2a2a; padding: 8px 14px; border-radius: 6px; border-left: 5px solid #888; font-size: 0.95rem; }
-        .card-item.Common { border-left-color: #aaa; }
-        .card-item.Rare { border-left-color: #1e88e5; }
-        .card-item.Epic { border-left-color: #8e24aa; }
-        .card-item.Legendary { border-left-color: #ffb300; font-weight: bold; text-shadow: 0 0 5px #ffb300; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kolekcja kart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Marcellus&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e13;
+  --panel: #151922;
+  --panel-2: #1b202b;
+  --line: #262d3a;
+  --text: #e8eaf0;
+  --muted: #8a93a6;
+  --common: #8f98a8;
+  --rare: #4aa3ff;
+  --epic: #b86bf5;
+  --legendary: #ffb83d;
+  --display: 'Marcellus', Georgia, serif;
+  --ui: 'Hanken Grotesk', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--ui);
+  min-height: 100vh;
+  line-height: 1.4;
+}
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; }
+:focus-visible { outline: 2px solid var(--rare); outline-offset: 3px; }
+
+.r-Common    { --c: var(--common); }
+.r-Rare      { --c: var(--rare); }
+.r-Epic      { --c: var(--epic); }
+.r-Legendary { --c: var(--legendary); }
+
+/* ---------- layout ---------- */
+.wrap { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: .01em; }
+.search {
+  margin-top: 22px;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0 18px;
+}
+.search:focus-within { border-color: var(--rare); }
+.search svg { flex: none; color: var(--muted); }
+.search input {
+  flex: 1; min-width: 0;
+  background: none; border: 0; outline: 0;
+  padding: 16px 0; font-size: 1.1rem;
+}
+.search input::placeholder { color: var(--muted); }
+
+/* ---------- player list ---------- */
+.players { margin-top: 18px; display: grid; gap: 8px; }
+.player {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 18px; text-align: left; width: 100%;
+}
+.player:hover { border-color: #3a4357; }
+.player .nick { font-weight: 700; overflow-wrap: anywhere; }
+.player .total { color: var(--muted); font-size: .9rem; margin-left: 10px; font-weight: 400; }
+.dots { display: flex; gap: 12px; flex: none; font-size: .9rem; }
+.dots span { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); }
+.dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: block; }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+/* ---------- collection header ---------- */
+.back { color: var(--muted); margin-top: 26px; padding: 6px 0; }
+.back:hover { color: var(--text); }
+.who { margin-top: 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+.who h2 { font-family: var(--display); font-weight: 400; font-size: clamp(1.8rem, 5vw, 2.6rem); overflow-wrap: anywhere; }
+.who p { color: var(--muted); }
+.toolbar { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--line); background: var(--panel);
+  padding: 7px 14px; border-radius: 999px; font-size: .92rem;
+}
+.chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.chip b { font-weight: 500; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--panel-2); border-color: var(--c, var(--text)); }
+.chip[aria-pressed="true"] b { color: var(--text); }
+.sort { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .92rem; }
+.sort select {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px 12px; color: var(--text);
+}
+
+/* ---------- card ---------- */
+.card {
+  --rx: 0; --ry: 0;
+  position: relative;
+  aspect-ratio: 5 / 7;
+  container-type: inline-size;
+  border-radius: 12px;
+  border: 2px solid var(--c, var(--common));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 30%, #12161e), #0d1016 70%);
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
+  overflow: hidden;
+}
+.r-Rare .card, .card.r-Rare       { box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 14px -4px var(--rare); }
+.r-Epic .card, .card.r-Epic       { box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 18px -3px var(--epic); }
+.r-Legendary .card, .card.r-Legendary { box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 26px -2px var(--legendary); }
+.art {
+  position: absolute; inset: 6%;
+  border-radius: 8px; overflow: hidden;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 28%, #1a1f2a), #0f1218 75%);
+  border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+}
+.art img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+.glyph { font-family: var(--display); font-size: 42cqw; color: color-mix(in srgb, var(--c) 80%, white); opacity: .85; line-height: 1; }
+.foil {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0; mix-blend-mode: color-dodge;
+  background: linear-gradient(115deg, #ff5f6d, #ffc371, #9bf06b, #5ee7ff, #a07bff, #ff5fd0, #ff5f6d);
+  background-size: 300% 300%;
+  background-position: calc(50% + var(--ry) * 1.4%) calc(50% + var(--rx) * 1.4%);
+}
+.r-Rare .foil { opacity: .12; }
+.r-Epic .foil { opacity: .26; }
+.r-Legendary .foil { opacity: .38; }
+.glare {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 25%), rgba(255,255,255,.35), transparent 55%);
+  mix-blend-mode: overlay; opacity: 0;
+}
+.count {
+  position: absolute; right: 8px; bottom: 8px; z-index: 2;
+  background: rgba(8,10,14,.82); border: 1px solid var(--line);
+  border-radius: 999px; padding: 1px 9px; font-weight: 700; font-size: .85rem;
+}
+
+/* ---------- grid ---------- */
+.grid {
+  margin-top: 26px;
+  display: grid; gap: 26px 18px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.tile { display: flex; flex-direction: column; gap: 7px; text-align: left; border-radius: 12px; }
+.tile .rar { color: var(--c); font-size: .82rem; font-weight: 500; }
+.tile .cardbox { position: relative; }
+.tile .nm { font-family: var(--display); font-size: 1.02rem; line-height: 1.2; overflow-wrap: anywhere; }
+
+/* ---------- viewer ---------- */
+.viewer {
+  position: fixed; inset: 0; z-index: 50;
+  background: radial-gradient(circle at 50% 45%, rgba(30,36,50,.96), rgba(6,7,10,.97) 70%);
+  display: grid; grid-template-columns: 64px 1fr 64px; align-items: center;
+  touch-action: none;
+}
+.viewer[hidden] { display: none; }
+.nav { height: 100%; font-size: 2rem; color: var(--muted); }
+.nav:hover { color: var(--text); }
+.nav:disabled { opacity: .2; cursor: default; }
+.close {
+  position: absolute; top: 14px; right: 18px; z-index: 3;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--line); font-size: 1.3rem;
+}
+.stage {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  cursor: grab; user-select: none; -webkit-user-select: none;
+  padding: 20px 0;
+}
+.stage.dragging { cursor: grabbing; }
+.v-rar { color: var(--c); font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+.v-rar i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+.scene { perspective: 1000px; }
+.v-card {
+  width: min(70vw, 340px, 46vh * 5 / 7 * 1.6);
+  transform: rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg));
+  transition: transform .7s cubic-bezier(.2, 1.5, .4, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.v-card .card { width: 100%; border-radius: 16px; border-width: 3px; }
+.v-card .glare { opacity: .85; }
+.stage.dragging .v-card { transition: none; }
+.v-name { font-family: var(--display); font-size: clamp(1.5rem, 4vw, 2.1rem); text-align: center; }
+.v-meta { color: var(--muted); font-size: .95rem; text-align: center; margin-top: -10px; }
+
+@media (max-width: 600px) {
+  .viewer { grid-template-columns: 40px 1fr 40px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 22px 12px; }
+  .wrap { padding-top: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v-card { transition: none; }
+}
+</style>
 </head>
 <body>
-    <h1>🎴 Kolekcje Graczy TCG Live Stream</h1>
-<div class="user-block"><div class="user-name">👤 Finalny_Test_Gaba <span style="font-size: 1rem; color: #aaa;">(108 kart/y)</span></div><div class="card-list"><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Gabka_ja <span style="font-size: 1rem; color: #aaa;">(3 kart/y)</span></div><div class="card-list"><div class="card-item Common">Rycerz Cienia <small>(Common)</small></div><div class="card-item Legendary">Ognisty Smok <small>(Legendary)</small></div><div class="card-item Common">Rycerz Cienia <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Janusz_Kick <span style="font-size: 1rem; color: #aaa;">(54 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Legendary">Smok Chaosu <small>(Legendary)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Nowy_Gracz_Gaba <span style="font-size: 1rem; color: #aaa;">(24 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Streamerka_Gaba <span style="font-size: 1rem; color: #aaa;">(30 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Legendary">Smok Chaosu <small>(Legendary)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div></div></div><div class="user-block"><div class="user-name">👤 Test_Gaba <span style="font-size: 1rem; color: #aaa;">(27 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Legendary">Smok Chaosu <small>(Legendary)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Test_Gaba_Kick <span style="font-size: 1rem; color: #aaa;">(12 kart/y)</span></div><div class="card-list"><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Test_Lokalny <span style="font-size: 1rem; color: #aaa;">(24 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Legendary">Smok Chaosu <small>(Legendary)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Test_Zabezpieczony <span style="font-size: 1rem; color: #aaa;">(12 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div><div class="user-block"><div class="user-name">👤 Tester_Janusz <span style="font-size: 1rem; color: #aaa;">(9 kart/y)</span></div><div class="card-list"><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Rare">Elfi Łucznik <small>(Rare)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div><div class="card-item Epic">Mroczny Rycerz <small>(Epic)</small></div><div class="card-item Common">Wiejski Wieśniak <small>(Common)</small></div></div></div>
+<div class="wrap">
+  <h1>Kolekcja kart</h1>
+  <label class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Wpisz nick gracza" autocomplete="off" spellcheck="false" aria-label="Szukaj gracza po nicku">
+  </label>
+  <main id="main"></main>
+</div>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Podgląd karty" hidden>
+  <button class="close" id="vclose" aria-label="Zamknij podgląd">✕</button>
+  <button class="nav" id="vprev" aria-label="Poprzednia karta">‹</button>
+  <div class="stage" id="stage">
+    <div class="v-rar" id="vrar"></div>
+    <div class="scene"><div class="v-card" id="vcard"></div></div>
+    <div class="v-name" id="vname"></div>
+    <div class="v-meta" id="vmeta"></div>
+  </div>
+  <button class="nav" id="vnext" aria-label="Następna karta">›</button>
+</div>
+
+<script id="data" type="application/json">{"users": {"Finalny_Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 31, "t": "2026-10-02 17:22:17"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 7, "t": "2026-10-02 17:22:17"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 70, "t": "2026-10-02 17:22:17"}], "Gabka_ja": [{"n": "Lodowy Golem", "r": "Epic", "c": 1, "t": "2026-10-03 11:19:31"}, {"n": "Ognisty Smok", "r": "Legendary", "c": 1, "t": "2026-10-03 09:54:49"}, {"n": "Rycerz Cienia", "r": "Common", "c": 3, "t": "2026-10-03 11:14:11"}], "Janusz_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 13, "t": "2026-10-02 18:56:12"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 18:53:42"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 18:53:27"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 38, "t": "2026-10-02 18:56:12"}], "Nowy_Gracz_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 14:08:21"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 13:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 19, "t": "2026-10-02 14:08:21"}], "Streamerka_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 5, "t": "2026-10-02 13:00:56"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 2, "t": "2026-10-02 12:33:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 13:00:56"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 22, "t": "2026-10-02 13:01:42"}], "Test_Gaba": [{"n": "Elfi Łucznik", "r": "Rare", "c": 8, "t": "2026-10-02 13:00:10"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:59:26"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:55:48"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 17, "t": "2026-10-02 13:00:10"}], "Test_Gaba_Kick": [{"n": "Elfi Łucznik", "r": "Rare", "c": 4, "t": "2026-10-02 18:59:06"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 8, "t": "2026-10-02 18:59:06"}], "Test_Lokalny": [{"n": "Elfi Łucznik", "r": "Rare", "c": 6, "t": "2026-10-02 12:51:31"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 4, "t": "2026-10-02 12:53:03"}, {"n": "Smok Chaosu", "r": "Legendary", "c": 1, "t": "2026-10-02 12:51:31"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 13, "t": "2026-10-02 12:53:03"}], "Test_Zabezpieczony": [{"n": "Elfi Łucznik", "r": "Rare", "c": 1, "t": "2026-10-02 17:26:29"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 17:26:44"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 10, "t": "2026-10-02 17:26:44"}], "Tester_Janusz": [{"n": "Elfi Łucznik", "r": "Rare", "c": 2, "t": "2026-10-02 12:26:02"}, {"n": "Mroczny Rycerz", "r": "Epic", "c": 1, "t": "2026-10-02 12:26:02"}, {"n": "Wiejski Wieśniak", "r": "Common", "c": 6, "t": "2026-10-02 12:26:02"}]}, "images": {}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const ORDER = ['Legendary', 'Epic', 'Rare', 'Common'];
+const RANK = Object.fromEntries(ORDER.map((r, i) => [r, i]));
+const rank = r => (r in RANK ? RANK[r] : 99);
+
+const SORTS = {
+  rarity_desc: ['Rzadkość: od najrzadszych', (a, b) => rank(a.r) - rank(b.r) || b.c - a.c || a.n.localeCompare(b.n, 'pl')],
+  rarity_asc:  ['Rzadkość: od najpospolitszych', (a, b) => rank(b.r) - rank(a.r) || b.c - a.c || a.n.localeCompare(b.n, 'pl')],
+  count_desc:  ['Kopie: najwięcej', (a, b) => b.c - a.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n, 'pl')],
+  count_asc:   ['Kopie: najmniej', (a, b) => a.c - b.c || rank(a.r) - rank(b.r) || a.n.localeCompare(b.n, 'pl')],
+  recent:      ['Ostatnio zdobyte', (a, b) => (b.t || '').localeCompare(a.t || '') || rank(a.r) - rank(b.r)],
+  name:        ['Nazwa A–Z', (a, b) => a.n.localeCompare(b.n, 'pl')]
+};
+
+const players = Object.entries(DATA.users).map(([name, cards]) => {
+  const by = {};
+  cards.forEach(c => { by[c.r] = (by[c.r] || 0) + c.c; });
+  return { name, cards, by, total: cards.reduce((s, c) => s + c.c, 0) };
+}).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pl'));
+
+const state = { user: null, filter: 'all', sort: 'rarity_desc', view: [] };
+const $ = id => document.getElementById(id);
+const main = $('main'), q = $('q');
+
+function h(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(k => { if (k != null) e.append(k); });
+  return e;
+}
+const plural = n => n === 1 ? 'kopia' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'kopie' : 'kopii';
+const cardWord = n => n === 1 ? 'karta' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'karty' : 'kart';
+
+function makeCard(c) {
+  const art = h('div', { class: 'art' });
+  const glyph = () => art.replaceChildren(h('span', { class: 'glyph', text: [...c.n][0].toUpperCase() }));
+  const url = DATA.images[c.n];
+  if (url) {
+    const img = h('img', { src: url, alt: '', loading: 'lazy', draggable: 'false' });
+    img.addEventListener('error', glyph);
+    art.append(img);
+  } else glyph();
+  return h('div', { class: 'card r-' + c.r }, art, h('div', { class: 'foil' }), h('div', { class: 'glare' }));
+}
+
+/* ---------- views ---------- */
+function showList() {
+  state.user = null;
+  const term = q.value.trim().toLowerCase();
+  const found = players.filter(p => p.name.toLowerCase().includes(term));
+  main.replaceChildren();
+  if (!found.length) {
+    main.append(h('p', { class: 'empty', text: `Nie ma gracza „${q.value.trim()}”. Sprawdź pisownię nicku.` }));
+    return;
+  }
+  main.append(h('div', { class: 'players' }, found.map(p =>
+    h('button', { class: 'player', type: 'button', onclick: () => openUser(p.name) },
+      h('span', { class: 'nick' }, p.name, h('span', { class: 'total', text: `${p.total} ${cardWord(p.total)}` })),
+      h('span', { class: 'dots' }, ORDER.filter(r => p.by[r]).map(r =>
+        h('span', { class: 'r-' + r, title: r }, h('i'), String(p.by[r])))))
+  )));
+}
+
+function openUser(name) {
+  const p = players.find(x => x.name === name);
+  if (!p) return;
+  state.user = p; state.filter = 'all';
+  q.value = p.name;
+  if (location.hash !== '#' + encodeURIComponent(name)) history.replaceState(null, '', '#' + encodeURIComponent(name));
+  showCollection();
+}
+
+function showCollection() {
+  const p = state.user;
+  const unique = p.cards.length;
+  const chips = [['all', 'Wszystkie', p.total]].concat(ORDER.filter(r => p.by[r]).map(r => [r, r, p.by[r]]));
+  main.replaceChildren(
+    h('button', { class: 'back', type: 'button', onclick: () => { q.value = ''; history.replaceState(null, '', location.pathname); showList(); q.focus(); } }, '← Wszyscy gracze'),
+    h('div', { class: 'who' },
+      h('h2', { text: p.name }),
+      h('p', { text: `${p.total} ${cardWord(p.total)}, w tym ${unique} unikalnych` })),
+    h('div', { class: 'toolbar' },
+      h('div', { class: 'chips', role: 'group', 'aria-label': 'Filtr rzadkości' }, chips.map(([key, label, n]) =>
+        h('button', { class: 'chip' + (key === 'all' ? '' : ' r-' + key), type: 'button', 'aria-pressed': String(state.filter === key),
+            onclick: () => { state.filter = key; showCollection(); } },
+          key === 'all' ? null : h('i'), label, h('b', { text: String(n) })))),
+      h('label', { class: 'sort' }, 'Sortuj',
+        h('select', { onchange: e => { state.sort = e.target.value; renderGrid(); } },
+          Object.entries(SORTS).map(([k, [label]]) => h('option', { value: k, text: label, ...(state.sort === k ? { selected: '' } : {}) }))))),
+    h('div', { class: 'grid', id: 'grid' })
+  );
+  renderGrid();
+}
+
+function renderGrid() {
+  const p = state.user;
+  state.view = p.cards.filter(c => state.filter === 'all' || c.r === state.filter).sort(SORTS[state.sort][1]);
+  const grid = $('grid');
+  grid.replaceChildren(...state.view.map((c, i) =>
+    h('button', { class: 'tile r-' + c.r, type: 'button', 'aria-label': `${c.n}, ${c.r}, ${c.c} ${plural(c.c)}`, onclick: () => openViewer(i) },
+      h('span', { class: 'rar', text: c.r }),
+      h('div', { class: 'cardbox' }, makeCard(c), c.c > 1 ? h('span', { class: 'count', text: '×' + c.c }) : null),
+      h('span', { class: 'nm', text: c.n }))));
+  if (!state.view.length) grid.append(h('p', { class: 'empty', text: 'Brak kart w tej kategorii.' }));
+}
+
+/* ---------- viewer (3D tilt) ---------- */
+const viewer = $('viewer'), stage = $('stage'), vcard = $('vcard');
+let vi = 0, lastFocus = null, drag = null;
+
+function showViewerCard() {
+  const c = state.view[vi];
+  if (!c) return;
+  stage.className = 'stage r-' + c.r;
+  $('vrar').replaceChildren(h('i'), c.r);
+  vcard.replaceChildren(makeCard(c));
+  $('vname').textContent = c.n;
+  $('vmeta').textContent = `${c.c} ${plural(c.c)} · ostatnio zdobyta ${(c.t || '').slice(0, 10)}`;
+  $('vprev').disabled = vi === 0;
+  $('vnext').disabled = vi === state.view.length - 1;
+  setTilt(0, 0);
+}
+function openViewer(i) {
+  lastFocus = document.activeElement;
+  vi = i;
+  viewer.hidden = false;
+  document.body.style.overflow = 'hidden';
+  showViewerCard();
+  $('vclose').focus();
+}
+function closeViewer() {
+  viewer.hidden = true;
+  document.body.style.overflow = '';
+  if (lastFocus) lastFocus.focus();
+}
+function step(d) {
+  const n = vi + d;
+  if (n >= 0 && n < state.view.length) { vi = n; showViewerCard(); }
+}
+function setTilt(rx, ry, gx = 50, gy = 25) {
+  vcard.style.setProperty('--rx', rx.toFixed(2));
+  vcard.style.setProperty('--ry', ry.toFixed(2));
+  vcard.style.setProperty('--gx', gx.toFixed(1) + '%');
+  vcard.style.setProperty('--gy', gy.toFixed(1) + '%');
+}
+/* miękki limit obrotu: karta idzie za myszką, ale nigdy nie obróci się do końca */
+const soft = (d, max = 38) => max * Math.tanh(d / 170);
+
+stage.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX, y: e.clientY };
+  stage.setPointerCapture(e.pointerId);
+  stage.classList.add('dragging');
+});
+stage.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const r = vcard.getBoundingClientRect();
+  setTilt(-soft(e.clientY - drag.y), soft(e.clientX - drag.x),
+          ((e.clientX - r.left) / r.width) * 100, ((e.clientY - r.top) / r.height) * 100);
+});
+const endDrag = () => { drag = null; stage.classList.remove('dragging'); setTilt(0, 0); };
+stage.addEventListener('pointerup', endDrag);
+stage.addEventListener('pointercancel', endDrag);
+
+$('vclose').addEventListener('click', closeViewer);
+$('vprev').addEventListener('click', () => step(-1));
+$('vnext').addEventListener('click', () => step(1));
+viewer.addEventListener('click', e => { if (e.target === viewer) closeViewer(); });
+document.addEventListener('keydown', e => {
+  if (viewer.hidden) return;
+  if (e.key === 'Escape') closeViewer();
+  else if (e.key === 'ArrowLeft') step(-1);
+  else if (e.key === 'ArrowRight') step(1);
+});
+
+/* ---------- start ---------- */
+q.addEventListener('input', showList);
+q.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const term = q.value.trim().toLowerCase();
+  const exact = players.find(p => p.name.toLowerCase() === term);
+  const found = players.filter(p => p.name.toLowerCase().includes(term));
+  const pick = exact || (found.length === 1 ? found[0] : null);
+  if (pick) openUser(pick.name);
+});
+window.addEventListener('hashchange', route);
+function route() {
+  const name = decodeURIComponent(location.hash.slice(1));
+  if (name && players.some(p => p.name === name)) openUser(name); else showList();
+}
+route();
+</script>
 </body>
 </html>
